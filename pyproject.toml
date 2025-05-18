@@ -1,0 +1,15 @@
+[project]
+name = "fastapi-tracker"
+version = "0.1.0"
+description = "Un tracker léger pour enregistrer les modèles via une API FastAPI compatible MLflow."
+authors = [{ name="Ton Nom", email="ton.email@example.com" }]
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "mlflow",
+    "requests",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
