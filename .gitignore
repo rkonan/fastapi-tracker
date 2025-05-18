@@ -1,0 +1,49 @@
+# === Python ===
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+*.log
+
+# === Environnements ===
+.env
+.venv/
+env/
+venv/
+Pipfile.lock
+poetry.lock
+
+# === VSCode ===
+.vscode/
+
+# === Temp et backup ===
+*.zip
+*.tar.gz
+.DS_Store
+Thumbs.db
+*.bak
+*.tmp
+*.swp
+.idea/
+
+# === MLflow Artifacts ===
+mlruns/
+mlartifacts/
+logs/
+
+# === Jupyter / IPython ===
+.ipynb_checkpoints/
+*.ipynb
+
+# === PyTest / Coverage ===
+.coverage
+htmlcov/
+.tox/
+.pytest_cache/
+
+# === OS Files ===
+*.~lock.*
+#=== le fichier example
+example.py
