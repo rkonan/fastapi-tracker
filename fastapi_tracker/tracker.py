@@ -60,6 +60,19 @@ class FastAPITracker:
         response.raise_for_status()
         logger.info(f"✅ [Métriques] Métriques enregistrées avec succès.")
 
+
+     def log_artifact(self, artifact, artifact_path: str):
+        logger.info(f"📊 [Artefact] Sauvegarde de l'artefact ({artifact_path}) en cours...")
+        files = {"artifact_file":artifact}
+        data = {
+            "run_id": self.run_id,
+            "artifact_path": artifact_path,
+        }
+        logger.info(f"📤 [Upload] Envoi du de l'artefact à l’API pour enregistrement...")
+        response = requests.post(f"{self.tracking_uri}/log_artifact", data=data, files=files)
+        response.raise_for_status()
+        logger.info(f"🎉 [Succès] Artefact envoyé et enregistré avec succès.")
+    
     def log_model(self, model, artifact_path: str, model_type: str = "sklearn", input_example=None):
         logger.info(f"🧠 [Modèle] Sauvegarde du modèle ({model_type}) en cours...")
         if mlflow.active_run() is not None:
