@@ -23,7 +23,19 @@ tracker = FastAPITracker("http://attowla.duckdns.org/api")
 tracker.set_experiment(apple_experiment)
 
 # Import Database
-data = pd.read_csv("/kaggle/input/fake-data/fake_data.csv")
+import os
+
+file_path = os.path.join(os.path.dirname(__file__), "data", "fake_data.csv")
+data = pd.read_csv(file_path)
+
+with tracker.start_run(run_name=run_name) as run:
+    # tracker.log_params(params)
+    # tracker.log_metrics(metrics)
+    # tracker.log_model(rf, artifact_path="rf_apples", model_type="sklearn")
+    tracker.log_artifact(file_path,"data")
+
+
+#data = pd.read_csv("data/fake_data.csv")
 #data = pd.read_csv("/kaggle/input/fake-data/fake_data.csv")
 X = data.drop(columns=["date", "demand"])
 X = X.astype('float')
@@ -50,7 +62,8 @@ r2 = r2_score(y_val, y_pred)
 metrics = {"mae": mae, "mse": mse, "rmse": rmse, "r2": r2}
 
 
-with tracker.start_run(run_name=run_name) as run:
-    tracker.log_params(params)
-    tracker.log_metrics(metrics)
-    tracker.log_model(rf, artifact_path="rf_apples", model_type="sklearn")
+# with tracker.start_run(run_name=run_name) as run:
+#     # tracker.log_params(params)
+#     # tracker.log_metrics(metrics)
+#     # tracker.log_model(rf, artifact_path="rf_apples", model_type="sklearn")
+#     tracker.log_artifact("data/fake_data.csv","data")
