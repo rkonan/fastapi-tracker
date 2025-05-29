@@ -92,7 +92,9 @@ class FastAPITracker:
                 model_dir = os.path.join(tmpdir, "model_artifact")
                 logger.info(f"📁 [Temp] Dossier temporaire créé : {model_dir}")
 
-                if model_type == "sklearn":
+                if model_type == "pytorch":
+                    mlflow.pytorch.save_model(sk_model=model, path=model_dir, input_example=input_example)
+                elif model_type == "sklearn":
                     mlflow.sklearn.save_model(sk_model=model, path=model_dir, input_example=input_example)
                 elif model_type == "keras":
                     mlflow.keras.save_model(model, path=model_dir, input_example=input_example)

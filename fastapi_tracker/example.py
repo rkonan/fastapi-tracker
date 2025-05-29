@@ -19,7 +19,7 @@ apple_experiment =("Apple_Models_4")
 run_name = "new_run_2"
 artifact_path = "rf_apples"
 
-tracker = FastAPITracker("http://attowla.duckdns.org/api")
+tracker = FastAPITracker("http://attowla.duckdns.org/tracker-api")
 tracker.set_experiment(apple_experiment)
 
 # Import Database
@@ -56,5 +56,5 @@ metrics = {"mae": mae, "mse": mse, "rmse": rmse, "r2": r2}
 with tracker.start_run(run_name=run_name) as run:
       tracker.log_params(params)
       tracker.log_metrics(metrics)
-      tracker.log_model(rf, artifact_path="rf_apples", model_type="sklearn",test_ds=X_val)
+      tracker.log_model(rf, artifact_path="rf_apples", model_type="sklearn")
 #      tracker.log_artifact("data/fake_data.csv","data")
