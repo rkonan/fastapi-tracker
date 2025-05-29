@@ -14,7 +14,8 @@ from mlflow.models.signature import infer_signature
 from collections.abc import Iterable
 import numpy as np
 import tensorflow as tf
-
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 logger = logging.getLogger("FastAPITracker")
 logger.setLevel(logging.INFO)  # Ou INFO si tu veux moins de verbosité
@@ -31,6 +32,18 @@ class FastAPITracker:
         self.tracking_uri = tracking_uri.rstrip("/")
         self.run_id = None
         self.experiment_name = None
+
+        retry_strategy = Retry(
+            total=10,
+            backoff_factor=1,
+            status_forcelist=[429, 500, 502, 503, 504],
+            allowed_methods=["HEAD", "GET", "OPTIONS", "POST"],
+            raise_on_status=False
+        )
+        adapter = HTTPAdapter(max_retries=retry_strategy)
+        self.session = requests.Session()
+        self.session.mount("http://", adapter)
+        self.session.mount("https://", adapter)
         logger.info(f"🔗 [Init] Tracking URI définie sur : {self.tracking_uri}")
 
     def set_experiment(self, experiment_name: str):
@@ -43,7 +56,7 @@ class FastAPITracker:
         if run_name:
             payload["run_name"] = run_name
         logger.info(f"🚀 [Run] Démarrage d’un run : {run_name or '(sans nom)'}")
-        response = requests.post(f"{self.tracking_uri}/create-run", json=payload)
+        response = self.session.post(f"{self.tracking_uri}/create-run", json=payload)
         response.raise_for_status()
         self.run_id = response.json()["run_id"]
         logger.info(f"✅ [Run] Run lancé avec l’ID : {self.run_id}")
@@ -56,14 +69,14 @@ class FastAPITracker:
     def log_params(self, params: Dict[str, Any]):
         logger.info(f"🛠️ [Paramètres] Enregistrement de {len(params)} paramètres : {params}")
         payload = {"run_id": self.run_id, "params": params}
-        response = requests.post(f"{self.tracking_uri}/log-params", json=payload)
+        response = self.session.post(f"{self.tracking_uri}/log-params", json=payload)
         response.raise_for_status()
         logger.info(f"✅ [Paramètres] Paramètres enregistrés avec succès.")
 
     def log_metrics(self, metrics: Dict[str, float]):
         logger.info(f"📊 [Métriques] Enregistrement de {len(metrics)} métriques : {metrics}")
         payload = {"run_id": self.run_id, "metrics": metrics}
-        response = requests.post(f"{self.tracking_uri}/log-metrics", json=payload)
+        response = self.session.post(f"{self.tracking_uri}/log-metrics", json=payload)
         response.raise_for_status()
         logger.info(f"✅ [Métriques] Métriques enregistrées avec succès.")
 
@@ -78,7 +91,7 @@ class FastAPITracker:
               "run_id": self.run_id,
               "artifact_path": artifact_path  # ce sera un dossier
           }
-          response = requests.post(f"{self.tracking_uri}/log-artifact", data=data, files=files)
+          response = self.session.post(f"{self.tracking_uri}/log-artifact", data=data, files=files)
           response.raise_for_status()
 
 
@@ -126,7 +139,7 @@ class FastAPITracker:
                     "model_type": model_type
                 }
                 logger.info(f"📤 [Upload] Envoi du modèle à l’API pour enregistrement...")
-                response = requests.post(f"{self.tracking_uri}/log-model", data=data, files=files)
+                response = self.session.post(f"{self.tracking_uri}/log-model", data=data, files=files)
                 response.raise_for_status()
                 logger.info(f"🎉 [Succès] Modèle envoyé et enregistré avec succès.")
   
@@ -184,7 +197,7 @@ class FastAPITracker:
     #                 "model_type": model_type
     #             }
     #             logger.info(f"📤 [Upload] Envoi du modèle à l’API pour enregistrement...")
-    #             response = requests.post(f"{self.tracking_uri}/log-model", data=data, files=files)
+    #             response = self.session.post(f"{self.tracking_uri}/log-model", data=data, files=files)
     #             response.raise_for_status()
     #             logger.info(f"🎉 [Succès] Modèle envoyé et enregistré avec succès.")
 
@@ -292,7 +305,7 @@ class FastAPITracker:
     #                 "model_type": model_type
     #             }
     #             logger.info(f"📤 [Upload] Envoi du modèle à l’API pour enregistrement...")
-    #             response = requests.post(f"{self.tracking_uri}/log-model", data=data, files=files)
+    #             response = self.session.post(f"{self.tracking_uri}/log-model", data=data, files=files)
     #             response.raise_for_status()
     #             logger.info(f"🎉 [Succès] Modèle envoyé et enregistré avec succès.")
 
